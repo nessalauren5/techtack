@@ -1,0 +1,70 @@
+body {
+  padding: 40px 0px;
+  background: url(../images/techtakbg.png) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.navbar {
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1), rgba(176, 176, 176, 0)), linear-gradient(to right, rgba(0,0,0,1), rgba(176,176,176,0));
+  -webkit-mask-size: 100% 50%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: left top, left bottom;
+}
+
+.search-box{
+  padding: 40px 0px;
+  background: url(../images/schbg.png) no-repeat center center;
+  background-size:100% auto;
+}
+
+.hint{
+  font-family: 'Merriweather', serif;
+  font-weight: 300;
+  color: white;
+}
+
+input#ts.tt-input
+{
+  background:url(../images/inputbg.png) no-repeat center center;
+  padding-left:4px;
+  color:#fff;
+  font-size:20px; resize:none;
+  background-size:100% auto !important;
+  font-family: "Ubuntu";
+  color: #00476A;
+  padding: .375rem 1.75rem .375rem .75rem;
+  line-height: 1.5;
+}
+.twitter-typeahead, .tt-hint, .tt-input, .tt-menu { width: 100%; }
+.twitter-typeahead{
+  min-height: 50px;
+}
+.tt-dropdown-menu{
+   background-color: rgba(55, 120, 160, 0.8);
+   color: white;
+}
+
+.search-input{
+  padding-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.tt-suggestion p{
+  background-color: #EABEC4;
+}
+
+
+.form-control{
+  border: 0px;
+}
+
+.fa-circle{
+  color:  #ABB6BA;
+}
+.fa-plus{
+  color:white;
+}
