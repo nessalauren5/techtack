@@ -7,22 +7,31 @@
                         <span class="hint">What would you like to learn today?</span>
                     </div>
                     <div class="col-md-9 search-input">
-                        <form class="form-inline">
+                        <div class="input-group">
+                            <!--div class="input-group-btn">
+                                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Category
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#">All</a>
+                                    <a class="dropdown-item" href="#">Langauages</a>
+                                    <a class="dropdown-item" href="#">Frameworks</a>
+                                    <a class="dropdown-item" href="#">Operating Systems</a>
+                                </div>
+                            </div-->
                             <input type="text" id="ts" class="inputbg" placeholder="start typing...">
-                            <select class="custom-select" id="inlineFormCustomSelectPref">
-                                <option selected>All</option>
-                                <option value="1">Langauages</option>
-                                <option value="2">Frameworks</option>
-                                <option value="3">Operating Systems</option>
-                            </select>
-                            <a href="#addterm">
+                            <span class="input-group-btn">
+                                 <button class="btn btn-secondary" type="button">Search</button>
+                            </span>
+                            <span class="input-group-btn">
+                                 <button class="btn btn-transp" type="button"> <a class="addterm" href="">
                                 <span class="fa-stack">
                                     <i class="fa fa-circle fa-stack-2x"></i>
                                     <i class="fa fa-plus fa-stack-1x"></i>
                                 </span>
-                            </a>
-                            <button type="submit" class="btn btn-primary">Search</button>
-                        </form>
+                        </a></button>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
