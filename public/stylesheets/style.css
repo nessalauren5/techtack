@@ -20,7 +20,7 @@ body {
 }
 
 .search-box{
-  padding: 40px 0px;
+  padding: 40px 25px;
   background: url(../images/schbg.png) no-repeat center center;
   background-size:100% auto;
   top: 40%;
@@ -56,8 +56,7 @@ input#ts.tt-input
 
 .search-input{
   padding-top: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 15px;
 }
 
 .tt-suggestion{
