@@ -6,28 +6,34 @@
 
 var app = require('../app');
 var debug = require('debug')('techtack:server');
-var http = require('http');
+var https = require('https');
 var pg = require('pg');
 var format = require('pg-format');
 const Sequelize = require('sequelize');
-
+var fs = require('fs');
+var key = fs.readFileSync('encryption/tt.key');
+var cert = fs.readFileSync( 'encryption/tt.crt' );
+var ca = fs.readFileSync( 'encryption/tt.crt' );
+var options = {
+    key: key,
+    cert: cert,
+    ca: ca
+};
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '8080');
+var port = normalizePort(process.env.PORT || '443');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTPS server.
  */
-
-var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-
+var server = https.createServer(options, app).listen(443);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
