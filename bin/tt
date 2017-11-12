@@ -11,9 +11,9 @@ var pg = require('pg');
 var format = require('pg-format');
 const Sequelize = require('sequelize');
 var fs = require('fs');
-var key = fs.readFileSync('encryption/tt.key');
-var cert = fs.readFileSync( 'encryption/tt.crt' );
-var ca = fs.readFileSync( 'encryption/tt.crt' );
+var key = fs.readFileSync('../encryption/tt.key');
+var cert = fs.readFileSync( '../encryption/tt.crt' );
+var ca = fs.readFileSync( '../encryption/tt.crt' );
 var options = {
     key: key,
     cert: cert,
