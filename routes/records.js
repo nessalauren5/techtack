@@ -4,7 +4,6 @@ var pg = require('pg');
 var format = require('pg-format');
 var PGUSER = 'postgres';
 var PGDATABASE = 'techtack';
-const Sequelize = require('sequelize');
 const fs = require('fs');
 const { Pool, Client } = require('pg');
 
@@ -28,6 +27,7 @@ const pool = new Pool(config);
 var options = {"options":{
     "searchPath":"tt_schema"}};
 
+// const Sequelize = require('sequelize');
 // const sequelize = new Sequelize(PGDATABASE, PGUSER, 'wordp@55', {
 //     host: 'localhost',
 //     dialect: 'postgres',
