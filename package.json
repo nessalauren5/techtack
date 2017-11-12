@@ -16,6 +16,5 @@
     "sequelize": "^4.22.5",
     "pg": "^7.4.0",
     "pg-format": "^1.0.4",
-    "express-handlebars": "^3.0.0"
   }
 }
