@@ -7,6 +7,30 @@ body {
   background-size: cover;
 }
 
+.topbtns{
+  margin-right: 10px;
+}
+
+.x{
+  margin-left: 5px;
+  float: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  opacity: .5;
+  background: 0 0;
+  border: 0;
+  -webkit-appearance: none;
+  text-decoration: none !important;
+}
+
+.x:hover{
+  color: #ABB6BA;
+  text-decoration: none !important;
+}
+
 .topnav {
   background : -moz-linear-gradient(50% 0% -90deg,rgba(255, 255, 255, 1) 0%,rgba(0, 0, 0, 1) 100%);
   background : -webkit-linear-gradient(-90deg, rgba(255, 255, 255, 1) 0%, rgba(0, 0, 0, 1) 100%);
@@ -39,7 +63,7 @@ input#ts.tt-input
   padding-left:4px;
   font-size:20px; resize:none;
   background-size:100% auto !important;
-  font-family: "Ubuntu";
+  font-family: "Ubuntu",serif;
   color: #00476A;
   padding: .375rem 1.75rem .375rem .75rem;
   line-height: 1.5;
@@ -52,15 +76,16 @@ input#ts.tt-input
 .tt-dropdown-menu{
    background-color: rgba(55, 120, 160, 0.8);
    color: white;
+   width: 100%;
 }
 
-.search-input{
+.search-box-pad{
   padding-top: 20px;
     margin-left: 15px;
 }
 
 .tt-suggestion{
-  font-family : Myriad Pro;
+  font-family: "Ubuntu",serif;
   font-size : 17px;
   line-height : 34px;
   color : #FFFFFF;
@@ -73,6 +98,13 @@ input#ts.tt-input
    background-color: #4E698C;
    border-radius: 0;
    color: white;
+  border: 0px;
+  font-family: "Montserrat", serif;
+  font-variant-caps: all-petite-caps;
+  cursor: pointer;
+}
+
+a{
   border: 0px;
   font-family: "Montserrat", serif;
   font-variant-caps: all-petite-caps;
@@ -95,6 +127,12 @@ input#ts.tt-input
   color: #4E698C;
 }
 
-.nav-link{
 
+.term{
+  color:white;
+  border-radius: .25em;
+  background-color: #4E698C;
+  height: 25px;
+  padding: 10px;
+  margin-right: 10px;
 }

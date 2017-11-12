@@ -13,14 +13,13 @@ span.twitter-typeahead .tt-menu {
   padding: 5px 0;
   margin: 2px 0 0;
   font-size: 1rem;
-  color: #373a3c;
+  color: #ffffff;
   text-align: left;
   list-style: none;
   background-color: #fff;
   background-clip: padding-box;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 0.25rem;
-width: 100%;
 }
 
 span.twitter-typeahead .tt-suggestion {
@@ -36,16 +35,16 @@ span.twitter-typeahead .tt-suggestion {
   background: none;
   border: 0; }
 span.twitter-typeahead .tt-suggestion:focus, .dropdown-item:hover, span.twitter-typeahead .tt-suggestion:hover {
-    color: #2b2d2f;
+    color: #ffffff;
     text-decoration: none;
     background-color: #f5f5f5; }
 span.twitter-typeahead .active.tt-suggestion, span.twitter-typeahead .tt-suggestion.tt-cursor, span.twitter-typeahead .active.tt-suggestion:focus, span.twitter-typeahead .tt-suggestion.tt-cursor:focus, span.twitter-typeahead .active.tt-suggestion:hover, span.twitter-typeahead .tt-suggestion.tt-cursor:hover {
-    color: #fff;
+    color: #ffffff;
     text-decoration: none;
-    background-color: rgba(55, 120, 160, 0.8);
+    background-color: #E2B4B0;
     outline: 0; }
 span.twitter-typeahead .disabled.tt-suggestion, span.twitter-typeahead .disabled.tt-suggestion:focus, span.twitter-typeahead .disabled.tt-suggestion:hover {
-    color: #818a91; }
+    color: #ffffff; }
 span.twitter-typeahead .disabled.tt-suggestion:focus, span.twitter-typeahead .disabled.tt-suggestion:hover {
     text-decoration: none;
     cursor: not-allowed;

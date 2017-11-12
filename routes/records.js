@@ -78,7 +78,9 @@ router.get('/', function(req, res, next) {
 
 /* GET users listing.*/
 router.get('/autoComplete', function(req, res, next) {
+
     var searchterm = req.query.searchItem.toLowerCase();
+    console.log("issuing query: " + searchterm);
     var myClient;
     var results = [];
     pool.connect(function (err, client, done) {
@@ -87,7 +89,7 @@ router.get('/autoComplete', function(req, res, next) {
         {
             myClient = client;
             // var searchQuery = format('SELECT title, similarity(\''  + searchterm +'\', LOWER(title)) as sml FROM records WHERE similarity(\''+searchterm+'\', LOWER(title)) > .2 ORDER BY sml desc, title LIMIT 100');
-            var searchQuery = format('SELECT title,  similarity(\''  + searchterm +'\', LOWER(title)) as sml from records WHERE to_tsvector(COALESCE(title, \'\') || \' \' || COALESCE(description, \'\')) @@ to_tsquery(\'' + searchterm + ':*\') ORDER BY sml desc;');
+            var searchQuery = format('SELECT title, category,  similarity(\''  + searchterm +'\', LOWER(title)) as sml from records WHERE to_tsvector(COALESCE(title, \'\') || \' \' || COALESCE(description, \'\')) @@ to_tsquery(\'' + searchterm + ':*\') ORDER BY sml desc;');
             console.log("issuing query: " + searchQuery);
             myClient.query(searchQuery, function (err, result) {
                 if (err) {
@@ -103,4 +105,28 @@ router.get('/autoComplete', function(req, res, next) {
 
 });
 
+router.get('/search', function(req, res, next){
+
+    var searchterm = req.query.q.toLowerCase().split(",");
+    console.log("issuing query: " + searchterm);
+    pool.connect(function (err, client, done){
+        if (err) console.log(err);
+        else {
+            myClient = client;
+            // var searchQuery = format('SELECT title, similarity(\''  + searchterm +'\', LOWER(title)) as sml FROM records WHERE similarity(\''+searchterm+'\', LOWER(title)) > .2 ORDER BY sml desc, title LIMIT 100');
+            var searchQuery = format('SELECT title, description, related_terms, pseudonyms from records WHERE to_tsvector(COALESCE(title, \'\') || \' \' || COALESCE(related_terms, \'\') || COALESCE(pseudonyms, \'\') || COALESCE(description, \'\')) @@ to_tsquery(\'' + searchterm + ':*\') ORDER BY title desc;');
+            console.log("issuing query: " + searchQuery);
+            myClient.query(searchQuery, function (err, result) {
+                if (err) {
+                    console.log(err);
+                    res.render('results');
+                }else {
+                    console.log(result.rows.length);
+                    results = result.rows;
+                    res.json( results);
+                }
+            });
+        }
+    });
+});
 module.exports = router;
