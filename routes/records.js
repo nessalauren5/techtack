@@ -12,8 +12,8 @@ const { Pool, Client } = require('pg');
 // convert excel sheet to json
 // const convertExcel = require('excel-as-json').processFile;
 // convertExcel('public/images/alltools.xlsx','row.json');
-var file = fs.readFileSync('row.json', 'utf8');
-var json_obj = JSON.parse(file);
+// var file = fs.readFileSync('row.json', 'utf8');
+// var json_obj = JSON.parse(file);
 
 var config = {
     user: PGUSER, // name of the user account
