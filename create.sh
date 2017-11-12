@@ -7,7 +7,7 @@ git clone https://github.com/nessalauren5/nessalauren.com.git
 cd nessalauren.com/
 npm install
 npm install pm2 -g
-pm2 start ./bin/www
+pm2 start ./bin/tt
 pm2 startup systemd
 pm2 save
 vim /var/lib/pgsql/data/pg_hba.conf #enable incoming md5 connections
