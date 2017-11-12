@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 const handlebarsHelpers = require('./helpers/helpers');
 var index = require('./routes/index');
 var records = require('./routes/records');
+var webhooks = require('./routes/webhooks');
 const exphbs = require("express-handlebars");
 var app = express();
 
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/records', records);
+app.use('/webhooks', webhooks);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
