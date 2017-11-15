@@ -11,13 +11,12 @@ var pg = require('pg');
 var format = require('pg-format');
 const Sequelize = require('sequelize');
 var fs = require('fs');
-var key = fs.readFileSync('../encryption/tt.key');
-var cert = fs.readFileSync( '../encryption/tt.crt' );
-var ca = fs.readFileSync( '../encryption/tt.crt' );
+var key = fs.readFileSync('../encryption/privkey.pem');
+var cert = fs.readFileSync( '../encryption/fullchain.pem' );
+
 var options = {
     key: key,
-    cert: cert,
-    ca: ca
+    cert: cert
 };
 /**
  * Get port from environment and store in Express.
