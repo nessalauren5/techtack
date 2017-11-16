@@ -660,7 +660,7 @@ function callSendAPI(messageData) {
     });
 }
 
-var getDescriptionOfTool = function(toolnames){
+var getDescriptionOfTool = function (toolnames, callback) {
     var tools = parseTools(toolnames);
     db.connect(function (err, client, done) {
         if (err) {
@@ -672,31 +672,36 @@ var getDescriptionOfTool = function(toolnames){
             var where = " where title IN (" + tools.join(",") + ")";
             var searchQuery = format('SELECT title, description from records' + where + ' ORDER BY title desc;');
             console.log("issuing query: " + searchQuery);
+            var values = [];
             myClient.query(searchQuery, function (err, result) {
                 if (err) {
                     console.log(err);
-                    done();
-                }else {
+                    done(err);
+                    return callback(err);
+                } else {
                     console.log(result.rows.length);
                     results = result.rows;
-                    var values = [];
+
                     results.forEach(function (row) {
                         var toolname = row.title;
                         values.push(
-                            {name:toolname,
-                                description:row.description
+                            {
+                                name: toolname,
+                                description: row.description
                             });
                     });
-                    return values;
+                    callback(err, values);
+
                 }
 
             });
+
         }
     });
 
 };
 
-var parseTools = function(tools){
+var parseTools = function (tools) {
     names = [];
 
     for (var i = 0, len = tools.length; i < len; i++) {
@@ -705,8 +710,8 @@ var parseTools = function(tools){
     return names;
 };
 
-function processNLPMessage(senderId,event){
-    if(event.message.hasOwnProperty('nlp')&& event.message.nlp.hasOwnProperty("entities")){
+function processNLPMessage(senderId, event) {
+    if (event.message.hasOwnProperty('nlp') && event.message.nlp.hasOwnProperty("entities")) {
         var nlp = event.message.nlp.entities;
         /**
          * Options:
@@ -717,42 +722,47 @@ function processNLPMessage(senderId,event){
          */
         console.log(nlp);
 
-        if (nlp.hasOwnProperty("intent")){
+        if (nlp.hasOwnProperty("intent")) {
             //we have an intent for this message! yay.
             var intents = nlp.intent;
             var userintent = "";
 
-            if(intents.length>1){
-            intents.forEach(function (intent) {
-                var conf = intent.confidence;
-                if(conf>userintent.confidence){
-                    userintent = intent;
-                }
-            });}
-            else{
+            if (intents.length > 1) {
+                intents.forEach(function (intent) {
+                    var conf = intent.confidence;
+                    if (conf > userintent.confidence) {
+                        userintent = intent;
+                    }
+                });
+            }
+            else {
                 userintent = intents[0];
             }
 
-            switch (userintent.value.toLowerCase()){
+            switch (userintent.value.toLowerCase()) {
                 case 'stack': // handle 'description' case
                     break;
                 case 'description': // handle 'description' case
-                    var results = getDescriptionOfTool(nlp.tool);
-                    console.log(results);
-                    sendResponseMessage(senderId,results);
+                    getDescriptionOfTool(nlp.tool, function (err, result) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log(result);
+                            sendResponseMessage(senderId, result);
+                        }
+                    });
                     break;
                 case 'how-to': // handle 'description' case
                     break;
                 case 'users': // handle 'description' case
                     break;
-
                 default:
                     // otherwise, just echo it back to the sender
-                    sendTextMessage(senderId,"I'm having a hard time understanding. Can you try again?");
+                    sendTextMessage(senderId, "I'm having a hard time understanding. Can you try again?");
             }
         }
 
-    }else {
+    } else {
         sendTextMessage(senderID, messageText);
     }
 }
@@ -763,6 +773,9 @@ function processNLPMessage(senderId,event){
  */
 function sendResponseMessage(recipientId, responses) {
     responses.forEach(function (response) {
+        if (response.description.length >= 640){
+            response.description = response.description.substring(0,620) + "...";
+        }
         var body = response.name + " : " + response.description;
         var messageData = {
             recipient: {
