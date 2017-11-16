@@ -11,16 +11,17 @@ var pg = require('pg');
 var format = require('pg-format');
 const Sequelize = require('sequelize');
 var fs = require('fs');
-var key = fs.readFileSync('../encryption/privkey.pem');
-var cert = fs.readFileSync( '../encryption/fullchain.pem' );
 
-var options = {
-    key: key,
-    cert: cert
-};
 /**
  * Get port from environment and store in Express.
  * var port = normalizePort(process.env.PORT || '443');
+ * var key = fs.readFileSync('../encryption/privkey.pem');
+ var cert = fs.readFileSync( '../encryption/fullchain.pem' );
+
+ var options = {
+    key: key,
+    cert: cert
+};
  */
 
 var port = normalizePort(process.env.PORT || '3000');
