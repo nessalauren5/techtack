@@ -7,10 +7,6 @@
 var app = require('../app');
 var debug = require('debug')('techtack:server');
 var http = require('http');
-var pg = require('pg');
-var format = require('pg-format');
-const Sequelize = require('sequelize');
-var fs = require('fs');
 
 /**
  * Get port from environment and store in Express.

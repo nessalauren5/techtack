@@ -1,6 +1,7 @@
 var express = require('express');
 var request = require('request');
-
+const db = require('../helpers/db');
+var format = require('pg-format');
 var router = express.Router();
 // App Dashboard > Dashboard > click the Show button in the App Secret field
 const APP_SECRET = '6b8ac07a88dc1f07d13955f3610640ec';
@@ -86,17 +87,18 @@ router.post('/fb', function (req, res) {
 
     if (data.object == 'page') {
         // send back a 200 within 20 seconds to avoid timeouts
-        res.sendStatus(200);
+
         // entries from multiple pages may be batched in one request
         data.entry.forEach(function (pageEntry) {
 
             // iterate over each messaging event for this page
             pageEntry.messaging.forEach(function (messagingEvent) {
                 let propertyNames = Object.keys(messagingEvent);
-                console.log("[app.post] Webhook event props: ", propertyNames.join());
+                //console.log("[app.post] Webhook event props: ", propertyNames.join());
 
                 if (messagingEvent.message) {
                     processMessageFromPage(messagingEvent);
+                    res.send(200);
                 } else if (messagingEvent.postback) {
                     // user replied by tapping a postback button
                     processPostbackMessage(messagingEvent);
@@ -145,8 +147,7 @@ function processMessageFromPage(event) {
     var timeOfMessage = event.timestamp;
     var message = event.message;
 
-    console.log("[processMessageFromPage] user (%d) page (%d) timestamp (%d) and message (%s)",
-        senderID, pageID, timeOfMessage, JSON.stringify(message));
+    // console.log("[processMessageFromPage] user (%d) page (%d) timestamp (%d) and message (%s)", senderID, pageID, timeOfMessage, JSON.stringify(message));
 
     if (message.quick_reply) {
         console.log("[processMessageFromPage] quick_reply.payload (%s)",
@@ -166,20 +167,10 @@ function processMessageFromPage(event) {
                 // handle 'help' as a special case
                 sendHelpOptionsAsQuickReplies(senderID);
                 break;
-
             default:
                 // otherwise, just echo it back to the sender
                 processNLPMessage(senderID, event);
         }
-    }
-}
-
-function processNLPMessage(senderId,event){
-    if(event.message.hasOwnProperty('nlp')&& event.message.nlp.hasOwnProperty("entities")){
-        var nlp = event.message.nlp.entities;
-
-    }else {
-        sendTextMessage(senderID, messageText);
     }
 }
 
@@ -259,7 +250,6 @@ function respondToHelpRequest(senderID, payload) {
 
     callSendAPI(messageData);
 }
-
 
 /*
  * This response uses templateElements to present the user with a carousel
@@ -623,7 +613,6 @@ function getImageAttachments(recipientId, helpRequestType) {
     return messageData;
 }
 
-
 /*
  * Send a text message using the Send API.
  *
@@ -669,6 +658,124 @@ function callSendAPI(messageData) {
             console.error("[callSendAPI] Send API call failed", response.statusCode, response.statusMessage, body.error);
         }
     });
+}
+
+var getDescriptionOfTool = function(toolnames){
+    var tools = parseTools(toolnames);
+    db.connect(function (err, client, done) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log("pool connected.");
+            var myClient = client;
+            var where = " where title IN (" + tools.join(",") + ")";
+            var searchQuery = format('SELECT title, description from records' + where + ' ORDER BY title desc;');
+            console.log("issuing query: " + searchQuery);
+            myClient.query(searchQuery, function (err, result) {
+                if (err) {
+                    console.log(err);
+                    done();
+                }else {
+                    console.log(result.rows.length);
+                    results = result.rows;
+                    var values = [];
+                    results.forEach(function (row) {
+                        var toolname = row.title;
+                        values.push(
+                            {name:toolname,
+                                description:row.description
+                            });
+                    });
+                    return values;
+                }
+
+            });
+        }
+    });
+
+};
+
+var parseTools = function(tools){
+    names = [];
+
+    for (var i = 0, len = tools.length; i < len; i++) {
+        names.push("'" + tools[i].value + "'");
+    }
+    return names;
+};
+
+function processNLPMessage(senderId,event){
+    if(event.message.hasOwnProperty('nlp')&& event.message.nlp.hasOwnProperty("entities")){
+        var nlp = event.message.nlp.entities;
+        /**
+         * Options:
+         * nlp.intent =
+         * nlp.search_query = [text not matching anything]
+         * nlp.action = [build,install]
+         * nlp.deliverable = [native app, web app, server, website]
+         */
+        console.log(nlp);
+
+        if (nlp.hasOwnProperty("intent")){
+            //we have an intent for this message! yay.
+            var intents = nlp.intent;
+            var userintent = "";
+
+            if(intents.length>1){
+            intents.forEach(function (intent) {
+                var conf = intent.confidence;
+                if(conf>userintent.confidence){
+                    userintent = intent;
+                }
+            });}
+            else{
+                userintent = intents[0];
+            }
+
+            switch (userintent.value.toLowerCase()){
+                case 'stack': // handle 'description' case
+                    break;
+                case 'description': // handle 'description' case
+                    var results = getDescriptionOfTool(nlp.tool);
+                    console.log(results);
+                    sendResponseMessage(senderId,results);
+                    break;
+                case 'how-to': // handle 'description' case
+                    break;
+                case 'users': // handle 'description' case
+                    break;
+
+                default:
+                    // otherwise, just echo it back to the sender
+                    sendTextMessage(senderId,"I'm having a hard time understanding. Can you try again?");
+            }
+        }
+
+    }else {
+        sendTextMessage(senderID, messageText);
+    }
+}
+
+/*
+ * Send a text message using the Send API.
+ *
+ */
+function sendResponseMessage(recipientId, responses) {
+    responses.forEach(function (response) {
+        var body = response.name + " : " + response.description;
+        var messageData = {
+            recipient: {
+                id: recipientId
+            },
+            message: {
+                text: body // utf-8, 640-character max
+            }
+        };
+        console.log("[sendTextMessage] %s", JSON.stringify(messageData));
+        callSendAPI(messageData);
+    });
+
 }
 
 module.exports = router;

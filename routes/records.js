@@ -1,11 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var pg = require('pg');
-var format = require('pg-format');
-var PGUSER = 'postgres';
-var PGDATABASE = 'techtack';
-const fs = require('fs');
-const { Pool, Client } = require('pg');
+const db = require('../helpers/db');
 const https = require('https');
 
 //
@@ -14,19 +9,6 @@ const https = require('https');
 // convertExcel('public/images/alltools.xlsx','row.json');
 // var file = fs.readFileSync('row.json', 'utf8');
 // var json_obj = JSON.parse(file);
-
-var config = {
-    user: PGUSER, // name of the user account
-    host: 'nessalauren.com',
-    password: 'wordp@55',
-    database: 'techtack', // name of the database
-    max: 10, // max number of clients in the pool
-    idleTimeoutMillis: 30000 // how long a client is allowed to remain idle before being closed
-}
-const client = new Client(config);
-const pool = new Pool(config);
-var options = {"options":{
-    "searchPath":"tt_schema"}};
 
 // pool.connect(function (err, client, done) {
 //     if (err) console.log(err);
@@ -88,7 +70,7 @@ router.get('/autoComplete', function(req, res, next) {
     console.log("issuing query: " + searchterm);
     var myClient;
     var results = [];
-    pool.connect(function (err, client, done) {
+    db.connect(function (err, client, done) {
         if (err) console.log(err);
         else
         {
@@ -104,6 +86,7 @@ router.get('/autoComplete', function(req, res, next) {
                     results = result.rows;
                     res.json( results);
                 }
+                myClient.end();
             });
         }
     }   );
@@ -114,7 +97,7 @@ router.get('/search', function(req, res, next){
 
     var searchterm = req.query.q.toLowerCase().split(",");
     console.log("issuing query: " + searchterm);
-    pool.connect(function (err, client, done){
+    db.connect(function (err, client, done){
         if (err) console.log(err);
         else {
             myClient = client;
@@ -130,6 +113,7 @@ router.get('/search', function(req, res, next){
                     results = result.rows;
                     res.json( results);
                 }
+                myClient.end();
             });
         }
     });
