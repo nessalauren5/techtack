@@ -17,6 +17,8 @@
     "pg": "^7.4.0",
     "pg-format": "^1.0.4",
     "express-handlebars": "^3.0.0",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "http": "^0.0.0",
+    "enum": "^2.5.0"
   }
 }

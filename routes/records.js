@@ -6,9 +6,10 @@ var PGUSER = 'postgres';
 var PGDATABASE = 'techtack';
 const fs = require('fs');
 const { Pool, Client } = require('pg');
+const https = require('https');
 
-
-// convert excel sheet to json
+//
+// // convert excel sheet to json
 // const convertExcel = require('excel-as-json').processFile;
 // convertExcel('public/images/alltools.xlsx','row.json');
 // var file = fs.readFileSync('row.json', 'utf8');
@@ -27,48 +28,52 @@ const pool = new Pool(config);
 var options = {"options":{
     "searchPath":"tt_schema"}};
 
-// const Sequelize = require('sequelize');
-// const sequelize = new Sequelize(PGDATABASE, PGUSER, 'wordp@55', {
-//     host: 'localhost',
-//     dialect: 'postgres',
+// pool.connect(function (err, client, done) {
+//     if (err) console.log(err);
+//     else
+//     {
+//         myClient = client;
+//         var searchQuery = format('SELECT distinct(title), from records ORDER BY title desc;');
+//         console.log("issuing query: " + searchQuery);
+//         myClient.query(searchQuery, function (err, result) {
+//             if (err) {
+//                 console.log(err);
+//             }else {
+//                 console.log(result.rows.length);
+//                 results = result.rows;
+//                 var values = [];
+//                 results.forEach(function (row) {
+//                     var toolname = row.title;
+//                     values.push(
+//                         {value:toolname,
+//                             expressions:[toolname,toolname.toLowerCase()]
+//                         });
+//                 });
+//                 var entries = {doc:"Tools",values:values};
+//                     console.log(JSON.stringify(entries));
+//                var postentreq = https.request({
+//                     host:'api.wit.ai',
+//                     path:'/entities/tool?v=201703',
+//                     headers: {"Authorization": "Bearer EMHECMMIQ3OL537ROQTJNMUCEAD4EC5J"  , "Content-Type": "application/json"},
+//                     method:'PUT'},function(res){
+//                     console.log(res.statusCode + " " + res.statusMessage);
 //
-//     pool: {
-//         max: 100,
-//         min: 0,
-//         acquire: 30000,
-//         idle: 10000
-//     },
-//     // http://docs.sequelizejs.com/manual/tutorial/querying.html#operators
-//     operatorsAliases: false
-// });
-// sequelize.options.schema = "tt_schema";
-//
-// const Record = sequelize.define('records', {
-//     id: {
-//         type: Sequelize.INTEGER,
-//         primaryKey: true
-//     },
-//     category: Sequelize.TEXT,
-//     subcategory:  Sequelize.TEXT,
-//     title: Sequelize.TEXT,
-//     description: Sequelize.TEXT,
-//     count: Sequelize.STRING,
-//     name: Sequelize.TEXT,
-//     pseudonyms: Sequelize.TEXT,
-//     related_terms: Sequelize.TEXT,
-//     url: Sequelize.TEXT,
-//     createdAt: {
-//         type: Sequelize.DATE,
-//         field: 'createdat'
-//     },
-//
-//     updatedAt: {
-//         type: Sequelize.DATE,
-//         field: 'updatedat'
-//     },
-//
-// });
-
+//                 });
+//                postentreq.write(JSON.stringify(entries));
+//                 postentreq.on('error', function (e) {
+//                     // General error, i.e.
+//                     //  - ECONNRESET - server closed the socket unexpectedly
+//                     //  - ECONNREFUSED - server did not listen
+//                     //  - HPE_INVALID_VERSION
+//                     //  - HPE_INVALID_STATUS
+//                     //  - ... (other HPE_* codes) - server returned garbage
+//                     console.log(e);
+//                 });
+//                postentreq.end();
+//             }
+//         });
+//     }
+// }   );
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -129,4 +134,4 @@ router.get('/search', function(req, res, next){
         }
     });
 });
-module.exports = router;
+    module.exports = router;

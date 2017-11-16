@@ -82,7 +82,7 @@ router.get('/fb', function (req, res) {
 router.post('/fb', function (req, res) {
     console.log("message received!");
     var data = req.body;
-    console.log(JSON.stringify(data));
+    // console.log(JSON.stringify(data));
 
     if (data.object == 'page') {
         // send back a 200 within 20 seconds to avoid timeouts
@@ -169,11 +169,19 @@ function processMessageFromPage(event) {
 
             default:
                 // otherwise, just echo it back to the sender
-                sendTextMessage(senderID, messageText);
+                processNLPMessage(senderID, event);
         }
     }
 }
 
+function processNLPMessage(senderId,event){
+    if(event.message.hasOwnProperty('nlp')&& event.message.nlp.hasOwnProperty("entities")){
+        var nlp = event.message.nlp.entities;
+
+    }else {
+        sendTextMessage(senderID, messageText);
+    }
+}
 
 /*
  * Send a message with the four Quick Reply buttons
