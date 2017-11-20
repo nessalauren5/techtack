@@ -3,6 +3,9 @@ var request = require('request');
 const db = require('../helpers/db');
 var format = require('pg-format');
 var router = express.Router();
+var se = require('../helpers/se');
+var https = require('https');
+const so_img = "https://cdn.sstatic.net/Sites/stackoverflow/company/img/logos/so/so-logo.png";
 // App Dashboard > Dashboard > click the Show button in the App Secret field
 const APP_SECRET = '6b8ac07a88dc1f07d13955f3610640ec';
 
@@ -98,7 +101,7 @@ router.post('/fb', function (req, res) {
 
                 if (messagingEvent.message) {
                     processMessageFromPage(messagingEvent);
-                    res.send(200);
+                    res.sendStatus(200);
                 } else if (messagingEvent.postback) {
                     // user replied by tapping a postback button
                     processPostbackMessage(messagingEvent);
@@ -257,11 +260,9 @@ function respondToHelpRequest(senderID, payload) {
  * left and right to see it
  *
  */
-function getGenericTemplates(recipientId, requestForHelpOnFeature) {
+function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElements,sectionButtons) {
     console.log("[getGenericTemplates] handling help request for %s",
         requestForHelpOnFeature);
-    var templateElements = [];
-    var sectionButtons = [];
     // each button must be of type postback but title
     // and payload are variable depending on which
     // set of options you want to provide
@@ -408,7 +409,8 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature) {
             attachment: {
                 type: "template",
                 payload: {
-                    template_type: "generic",
+                    template_type: "list",
+                    top_element_style: "compact",
                     elements: templateElements
                 }
             }
@@ -418,6 +420,33 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature) {
     return messageData;
 }
 
+function createElementTemplate(type,title,subtitle,img,site){
+
+    var btns = {};
+        switch(type){
+            case 'list':
+                btns = { type: 'web_url',
+                    url: site,
+                    title: "Open",
+                    messenger_extensions: 'TRUE',
+                         webview_height_ratio: "COMPACT"
+                };
+            default:
+               btns = {type: 'web_url',
+                url: site,
+                title: "Open"};
+        }
+
+    element = {
+        title: title,
+        subtitle: subtitle ,
+        default_action: {type: 'web_url',
+        url: site, messenger_extensions: 'FALSE',
+            webview_height_ratio: "FULL"}
+    };
+
+    return element;
+}
 /*
  * This response uses image attachments to illustrate each step of each feature.
  * This is less flexible because you are limited in the number of options you can
@@ -710,6 +739,62 @@ var parseTools = function (tools) {
     return names;
 };
 
+
+function loadEntities(){
+        db.connect(function (err, client, done) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                myClient = client;
+                var searchQuery = format('SELECT distinct(title) from records ORDER BY title desc;');
+                console.log("issuing query: " + searchQuery);
+                myClient.query(searchQuery, function (err, result) {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log(result.rows.length);
+                        results = result.rows;
+                        var values = [];
+                        results.forEach(function (row) {
+                            var toolname = row.title;
+                            values.push(
+                                {
+                                    value: toolname,
+                                    expressions: [toolname, toolname.toLowerCase()]
+                                });
+                        });
+                        var entries = {doc: "Tools", values: values};
+                        console.log(JSON.stringify(entries));
+                        var postentreq = https.request({
+                            host: 'api.wit.ai',
+                            path: '/entities/tool?v=201703',
+                            headers: {
+                                "Authorization": "Bearer EMHECMMIQ3OL537ROQTJNMUCEAD4EC5J",
+                                "Content-Type": "application/json"
+                            },
+                            method: 'PUT'
+                        }, function (res) {
+                            console.log(res.statusCode + " " + res.statusMessage);
+
+                        });
+                        postentreq.write(JSON.stringify(entries));
+                        postentreq.on('error', function (e) {
+                            // General error, i.e.
+                            //  - ECONNRESET - server closed the socket unexpectedly
+                            //  - ECONNREFUSED - server did not listen
+                            //  - HPE_INVALID_VERSION
+                            //  - HPE_INVALID_STATUS
+                            //  - ... (other HPE_* codes) - server returned garbage
+                            console.log(e);
+                        });
+                        postentreq.end();
+                    }
+                });
+            }
+        });
+}
+
 function processNLPMessage(senderId, event) {
     if (event.message.hasOwnProperty('nlp') && event.message.nlp.hasOwnProperty("entities")) {
         var nlp = event.message.nlp.entities;
@@ -753,6 +838,19 @@ function processNLPMessage(senderId, event) {
                     });
                     break;
                 case 'how-to': // handle 'description' case
+                    var q = event.message.text;
+                       if(nlp.hasOwnProperty('wikipedia_search_query')){
+                           q = nlp.wikipedia_search_query[0].value;
+                       }
+
+                        searchStackExchange(q,function(err,result){
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log(result);
+                                sendSEMessage(senderId, result);
+                            }
+                        });
                     break;
                 case 'users': // handle 'description' case
                     break;
@@ -767,6 +865,19 @@ function processNLPMessage(senderId, event) {
     }
 }
 
+function searchStackExchange(query,callback){
+
+    //try to search stack exchange for answers.
+
+    se.search(query,function(err,results){
+        if(err){console.log(err);}
+        else{
+            //process results
+            callback(err,results);
+        }
+    });
+
+}
 /*
  * Send a text message using the Send API.
  *
@@ -791,4 +902,26 @@ function sendResponseMessage(recipientId, responses) {
 
 }
 
+function sendSEMessage(recipientId,responses){
+    var messageData = {};
+    var entries = [];
+    var buttons = [];
+    responses.forEach(function (response) {
+        var element = createElementTemplate("list",response.title,response.tags.join(''),so_img,response.link);
+        entries.push(element);
+        console.log("[sendTextMessage] %s", JSON.stringify(messageData));
+    });
+    messageData = getGenericTemplates(recipientId,false,entries,buttons);
+    messageData.message.attachment.payload.buttons = [];
+    messageData.message.attachment.payload.buttons = [
+        {
+            "title": "View More",
+            "type": "postback",
+            "payload": "payload"
+        }];
+    callSendAPI(messageData);
+};
+// loadEntities();
 module.exports = router;
+
+

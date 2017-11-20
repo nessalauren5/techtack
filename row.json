@@ -9771,7 +9771,7 @@
     "id": 814,
     "category": "Programming Terms",
     "subcategory": "Definition",
-    "title": "Do",
+    "title": "Do Loop",
     "description": "A \"do\" is a loop statement in programming that performs pre-defined tasks while or until a pre-determined condition is met. For example, in the below Perl code the do loop runs until the $count variable has reached the value of 10.",
     "count": "",
     "name": "",

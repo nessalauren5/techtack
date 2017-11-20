@@ -19,6 +19,7 @@
     "express-handlebars": "^3.0.0",
     "request": "^2.83.0",
     "http": "^0.0.0",
-    "enum": "^2.5.0"
+    "enum": "^2.5.0",
+    "stackexchange":"^0.4.0"
   }
 }

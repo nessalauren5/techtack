@@ -10,52 +10,52 @@ const https = require('https');
 // var file = fs.readFileSync('row.json', 'utf8');
 // var json_obj = JSON.parse(file);
 
-// pool.connect(function (err, client, done) {
-//     if (err) console.log(err);
-//     else
-//     {
-//         myClient = client;
-//         var searchQuery = format('SELECT distinct(title), from records ORDER BY title desc;');
-//         console.log("issuing query: " + searchQuery);
-//         myClient.query(searchQuery, function (err, result) {
-//             if (err) {
-//                 console.log(err);
-//             }else {
-//                 console.log(result.rows.length);
-//                 results = result.rows;
-//                 var values = [];
-//                 results.forEach(function (row) {
-//                     var toolname = row.title;
-//                     values.push(
-//                         {value:toolname,
-//                             expressions:[toolname,toolname.toLowerCase()]
-//                         });
-//                 });
-//                 var entries = {doc:"Tools",values:values};
-//                     console.log(JSON.stringify(entries));
-//                var postentreq = https.request({
-//                     host:'api.wit.ai',
-//                     path:'/entities/tool?v=201703',
-//                     headers: {"Authorization": "Bearer EMHECMMIQ3OL537ROQTJNMUCEAD4EC5J"  , "Content-Type": "application/json"},
-//                     method:'PUT'},function(res){
-//                     console.log(res.statusCode + " " + res.statusMessage);
-//
-//                 });
-//                postentreq.write(JSON.stringify(entries));
-//                 postentreq.on('error', function (e) {
-//                     // General error, i.e.
-//                     //  - ECONNRESET - server closed the socket unexpectedly
-//                     //  - ECONNREFUSED - server did not listen
-//                     //  - HPE_INVALID_VERSION
-//                     //  - HPE_INVALID_STATUS
-//                     //  - ... (other HPE_* codes) - server returned garbage
-//                     console.log(e);
-//                 });
-//                postentreq.end();
-//             }
-//         });
-//     }
-// }   );
+pool.connect(function (err, client, done) {
+    if (err) console.log(err);
+    else
+    {
+        myClient = client;
+        var searchQuery = format('SELECT distinct(title), from records ORDER BY title desc;');
+        console.log("issuing query: " + searchQuery);
+        myClient.query(searchQuery, function (err, result) {
+            if (err) {
+                console.log(err);
+            }else {
+                console.log(result.rows.length);
+                results = result.rows;
+                var values = [];
+                results.forEach(function (row) {
+                    var toolname = row.title;
+                    values.push(
+                        {value:toolname,
+                            expressions:[toolname,toolname.toLowerCase()]
+                        });
+                });
+                var entries = {doc:"Tools",values:values};
+                    console.log(JSON.stringify(entries));
+               var postentreq = https.request({
+                    host:'api.wit.ai',
+                    path:'/entities/tool?v=201703',
+                    headers: {"Authorization": "Bearer EMHECMMIQ3OL537ROQTJNMUCEAD4EC5J"  , "Content-Type": "application/json"},
+                    method:'PUT'},function(res){
+                    console.log(res.statusCode + " " + res.statusMessage);
+
+                });
+               postentreq.write(JSON.stringify(entries));
+                postentreq.on('error', function (e) {
+                    // General error, i.e.
+                    //  - ECONNRESET - server closed the socket unexpectedly
+                    //  - ECONNREFUSED - server did not listen
+                    //  - HPE_INVALID_VERSION
+                    //  - HPE_INVALID_STATUS
+                    //  - ... (other HPE_* codes) - server returned garbage
+                    console.log(e);
+                });
+               postentreq.end();
+            }
+        });
+    }
+}   );
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
