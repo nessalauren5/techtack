@@ -828,14 +828,33 @@ function processNLPMessage(senderId, event) {
                 case 'stack': // handle 'description' case
                     break;
                 case 'description': // handle 'description' case
-                    getDescriptionOfTool(nlp.tool, function (err, result) {
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log(result);
-                            sendResponseMessage(senderId, result);
+                    if(nlp.hasOwnProperty('tool')) {
+                        getDescriptionOfTool(nlp.tool, function (err, result) {
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log(result);
+                                sendResponseMessage(senderId, result);
+                            }
+                            break;
+                        });
+                    }
+                    else{
+                        var q = event.message.text;
+                        if(nlp.hasOwnProperty('wikipedia_search_query')){
+                            q = nlp.wikipedia_search_query[0].value;
                         }
-                    });
+
+                        searchStackExchange(q,function(err,result){
+                            if (err) {
+                                console.log(err);
+                            } else {
+                                console.log(result);
+                                sendSEMessage(senderId, result);
+                            }
+                        });
+                        }
+
                     break;
                 case 'how-to': // handle 'description' case
                     var q = event.message.text;
