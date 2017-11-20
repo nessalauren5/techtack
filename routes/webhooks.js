@@ -225,31 +225,208 @@ function handleQuickReplyResponse(event) {
     console.log("[handleQuickReplyResponse] Handling quick reply response (%s) from sender (%d) to page (%d) with message (%s)",
         payload, senderID, pageID, JSON.stringify(message));
 
+
     respondToHelpRequest(senderID, payload);
 
 }
-
-/*
- * simplify switching between the two help response implementations
- */
-function respondToHelpRequest(senderID, payload) {
-    // set useGenericTemplates to false to send image attachments instead of generic templates
-    var useGenericTemplates = true;
-    var messageData = {};
-
-    if (useGenericTemplates) {
-        // respond to the sender's help request by presenting a carousel-style
-        // set of screenshots of the application in action
-        // each response includes all the content for the requested feature
-        messageData = getGenericTemplates(senderID, payload);
-    } else {
-        // respond to the help request by presenting one image at a time
-        messageData = getImageAttachments(senderID, payload);
+function getGenericTemplate(recipientId, requestForHelpOnFeature) {
+    console.log("[getGenericTemplates] handling help request for %s",
+        requestForHelpOnFeature);
+    var templateElements = [];
+    var sectionButtons = [];
+    // each button must be of type postback but title
+    // and payload are variable depending on which
+    // set of options you want to provide
+    var addSectionButton = function (title, payload) {
+        sectionButtons.push({
+            type: 'postback',
+            title: title,
+            payload: payload
+        });
     }
 
-    callSendAPI(messageData);
-}
+    // Since there are only four options in total, we will provide
+    // buttons for each of the remaining three with each section.
+    // This provides the user with maximum flexibility to navigate
 
+    switch (requestForHelpOnFeature) {
+        case 'QR_GITHUB_1':
+            addSectionButton('Show me examples of nodejs', 'Show me examples of nodejs');
+            addSectionButton('Hello world Java example', 'QR_CAPTION_1');
+            addSectionButton('Background', 'QR_BACKGROUND_1');
+
+            templateElements.push(
+                {
+                    title: "Rotation",
+                    subtitle: "portrait mode",
+                    image_url: IMG_BASE_PATH + "01-rotate-landscape.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Rotation",
+                    subtitle: "landscape mode",
+                    image_url: IMG_BASE_PATH + "02-rotate-portrait.png",
+                    buttons: sectionButtons
+                }
+            );
+            break;
+        case 'QR_TOOL_1':
+            addSectionButton('Rotation', 'QR_ROTATION_1');
+            addSectionButton('Caption', 'QR_CAPTION_1');
+            addSectionButton('Background', 'QR_BACKGROUND_1');
+
+            templateElements.push(
+                {
+                    title: "Photo Picker",
+                    subtitle: "click to start",
+                    image_url: IMG_BASE_PATH + "03-photo-hover.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Photo Picker",
+                    subtitle: "Downloads folder",
+                    image_url: IMG_BASE_PATH + "04-photo-list.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Photo Picker",
+                    subtitle: "photo selected",
+                    image_url: IMG_BASE_PATH + "05-photo-selected.png",
+                    buttons: sectionButtons
+                }
+            );
+            break;
+        case 'QR_CODE_1':
+            addSectionButton('Rotation', 'QR_ROTATION_1');
+            addSectionButton('Photo', 'QR_PHOTO_1');
+            addSectionButton('Background', 'QR_BACKGROUND_1');
+
+            templateElements.push(
+                {
+                    title: "Caption",
+                    subtitle: "click to start",
+                    image_url: IMG_BASE_PATH + "06-text-hover.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Caption",
+                    subtitle: "enter text",
+                    image_url: IMG_BASE_PATH + "07-text-mid-entry.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Caption",
+                    subtitle: "click OK",
+                    image_url: IMG_BASE_PATH + "08-text-entry-done.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Caption",
+                    subtitle: "Caption done",
+                    image_url: IMG_BASE_PATH + "09-text-complete.png",
+                    buttons: sectionButtons
+                }
+            );
+            break;
+        case 'QR_BACKGROUND_1':
+            addSectionButton('Rotation', 'QR_ROTATION_1');
+            addSectionButton('Photo', 'QR_PHOTO_1');
+            addSectionButton('Caption', 'QR_CAPTION_1');
+
+            templateElements.push(
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click to start",
+                    image_url: IMG_BASE_PATH + "10-background-picker-hover.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click current color",
+                    image_url: IMG_BASE_PATH + "11-background-picker-appears.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "select new color",
+                    image_url: IMG_BASE_PATH + "12-background-picker-selection.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click ok",
+                    image_url: IMG_BASE_PATH + "13-background-picker-selection-made.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "color is applied",
+                    image_url: IMG_BASE_PATH + "14-background-changed.png",
+                    buttons: sectionButtons
+                }
+            );
+            break;
+        case 'QR_CAPTION_1':
+            addSectionButton('Rotation', 'QR_ROTATION_1');
+            addSectionButton('Photo', 'QR_PHOTO_1');
+            addSectionButton('Caption', 'QR_CAPTION_1');
+
+            templateElements.push(
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click to start",
+                    image_url: IMG_BASE_PATH + "10-background-picker-hover.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click current color",
+                    image_url: IMG_BASE_PATH + "11-background-picker-appears.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "select new color",
+                    image_url: IMG_BASE_PATH + "12-background-picker-selection.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click ok",
+                    image_url: IMG_BASE_PATH + "13-background-picker-selection-made.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "color is applied",
+                    image_url: IMG_BASE_PATH + "14-background-changed.png",
+                    buttons: sectionButtons
+                }
+            );
+            break;
+    }
+
+    if (templateElements.length < 2) {
+        console.error("each template should have at least two elements");
+    }
+
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "generic",
+                    elements: templateElements
+                }
+            }
+        }
+    };
+
+    return messageData;
+}
 /*
  * This response uses templateElements to present the user with a carousel
  * You send ALL of the content for the selected feature and they swipe
@@ -452,6 +629,51 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature, templateEleme
     };
 
     return messageData;
+}
+/*
+ * simplify switching between the two help response implementations
+ */
+function respondToHelpRequest(senderID, payload) {
+    // set useGenericTemplates to false to send image attachments instead of generic templates
+    var useGenericTemplates = true;
+    var messageData = {};
+
+    if(payload.hasOwnProperty('message')){
+        sendTextMessage(senderID,"View more.");
+    }
+    else if (useGenericTemplates) {
+        switch (payload){
+            case 'QR_GITHUB_1':
+                sendTextMessage(senderID,"I can search Github for you." +
+                    "Say something like: \n\n* Examples of chatbots using node." +
+                    "\n* Find me code using twitter bootstrap");
+                break;
+            case 'QR_CODE_1':
+                sendTextMessage(senderID,"I can search StackOverflow for solutions." +
+                    "Say something like: \n\n* Fix stackoverflow error" +
+                    "\n*How do I install nodejs on Ubuntu?");
+                break;
+            case 'QR_TOOL_1':
+                sendTextMessage(senderID,"I define terms and describe tools." +
+                    "Say something like:\n\n* What is Inheritance?" +
+                    "\n* Tell me about react");
+                break;
+            default:
+                // respond to the sender's help request by presenting a carousel-style
+                // set of screenshots of the application in action
+                // each response includes all the content for the requested feature
+
+                messageData = getGenericTemplate(senderID, payload);
+                console.log(messageData);
+                break;
+        }
+
+    } else {
+        // respond to the help request by presenting one image at a time
+        messageData = getImageAttachments(senderID, payload);
+    }
+
+    callSendAPI(messageData);
 }
 
 function createElementTemplate(type, title, subtitle, img, site) {
@@ -738,7 +960,7 @@ var getDescriptionOfTool = function (toolnames, callback) {
         else {
             console.log("pool connected.");
             var myClient = client;
-            var where = " where title IN (" + tools.join(",") + ")";
+            var where = " where LOWER(title) LIKE (" + tools.join(",").toLowerCase() + ")";
             var searchQuery = format('SELECT title, description from records' + where + ' ORDER BY title desc;');
             console.log("issuing query: " + searchQuery);
             var values = [];
@@ -750,7 +972,6 @@ var getDescriptionOfTool = function (toolnames, callback) {
                 } else {
                     console.log(result.rows.length);
                     results = result.rows;
-
                     results.forEach(function (row) {
                         var toolname = row.title;
                         values.push(
@@ -887,7 +1108,7 @@ function processNLPMessage(senderId, event) {
                             console.log(err);
                         } else {
                             // console.log(result);
-                            sendGHMessage(senderId, result);
+                            sendGHMessage(q,senderId, result);
                         }
                     });
                     break;
@@ -897,8 +1118,13 @@ function processNLPMessage(senderId, event) {
                             if (err) {
                                 console.log(err);
                             } else {
-                                console.log(result);
-                                sendResponseMessage(senderId, result);
+                                if(result==null || result.length == 0){
+
+                                        sendTextMessage(senderId, "Hmm. I don't have that in my vocabulary. Let me try asking around..");
+
+                                }else {
+                                    sendResponseMessage(senderId, result);
+                                }
                             }
                         });
                     }
@@ -907,15 +1133,26 @@ function processNLPMessage(senderId, event) {
                         if (nlp.hasOwnProperty('wikipedia_search_query')) {
                             q = nlp.wikipedia_search_query[0].value;
                         }
+                        //try db first.
+                        getDescriptionOfTool(nlp.wikipedia_search_query, function (err, result) {
+                            if (err || result == null || result.length==0) {
 
-                        searchStackExchange(q, function (err, result) {
-                            if (err) {
-                                console.log(err);
+                                sendTextMessage(senderId, "Hmm. I don't have that in my vocabulary. Let me try asking around..");
+
+                                searchStackExchange(q, function (err, result) {
+                                    if (err) {
+                                        console.log(err);
+                                    } else {
+                                        console.log(result);
+                                        sendSEMessage(q,senderId, result);
+                                    }
+                                });
                             } else {
                                 console.log(result);
-                                sendSEMessage(senderId, result);
+                                sendResponseMessage(senderId, result);
                             }
                         });
+
                     }
                     break;
                 case 'how-to': // handle 'description' case
@@ -929,12 +1166,13 @@ function processNLPMessage(senderId, event) {
                             q += nlp.tool[i].value + " ";
                         }
                     }
+                    console.log(q);
                     searchStackExchange(q, function (err, result) {
                         if (err) {
                             console.log(err);
                         } else {
                             // console.log(result);
-                            sendSEMessage(senderId, result);
+                            sendSEMessage(q,senderId, result);
                         }
                     });
                     break;
@@ -1007,47 +1245,75 @@ function sendResponseMessage(recipientId, responses) {
 
 }
 
-function sendSEMessage(recipientId, responses) {
-    sendTextMessage(recipientId, "Try one of these answers from Stack Exchange:");
-    var messageData = {};
-    var entries = [];
-    var buttons = [];
-    responses.forEach(function (response) {
-        var element = createElementTemplate("list", response.title, response.tags.join(''), so_img, response.link);
-        entries.push(element);
-        console.log("[sendTextMessage] %s", JSON.stringify(messageData));
-    });
-    messageData = getGenericTemplates(recipientId, false, entries, buttons);
-    messageData.message.attachment.payload.buttons = [];
-    messageData.message.attachment.payload.buttons = [
-        {
-            "title": "View More",
-            "type": "postback",
-            "payload": "payload"
-        }];
-    callSendAPI(messageData);
+function emptyResults(recipientId, results){
+    if(results.length==0){
+        sendTextMessage(recipientId, "I was unable to find anything on that subject.");
+        return true;
+    }
+    return false;
+}
+function sendSEMessage(q, recipientId, responses) {
+    if(!emptyResults(recipientId,responses)) {
+        sendTextMessage(recipientId, "Try one of these answers from Stack Exchange:");
+        var messageData = {};
+        var entries = [];
+        var buttons = [];
+        responses.forEach(function (response) {
+            var element = createElementTemplate("list", response.title, response.tags.join(''), so_img, response.link);
+            entries.push(element);
+            console.log("[sendTextMessage] %s", JSON.stringify(messageData));
+        });
+        messageData = getGenericTemplates(recipientId, false, entries, buttons);
+        messageData.message.attachment.payload.buttons = [];
+        messageData.message.attachment.payload.buttons = [
+            {
+                "title": "View More",
+                "type": "web_url",
+                "url": "https://stackoverflow.com/search?q="+q
+            }];
+        callSendAPI(messageData);
+    }
 };
 
-function sendGHMessage(recipientId, responses) {
-    sendTextMessage(recipientId, "Try one of these answers from Github:");
-    var messageData = {};
-    var entries = [];
-    var buttons = [];
-    responses.forEach(function (response) {
-        var element = createElementTemplate("list", response.description ? response.description : response.name, response.language ? response.language : response.tools, response.owner.avatar_url, response.html_url);
-        entries.push(element);
-        console.log("[sendTextMessage] %s", JSON.stringify(messageData));
-    });
-    messageData = getGenericTemplates(recipientId, false, entries, buttons);
-    messageData.message.attachment.payload.buttons = [];
-    messageData.message.attachment.payload.buttons = [
-        {
-            "title": "View More",
-            "type": "postback",
-            "payload": "payload"
-        }];
-    callSendAPI(messageData);
+function sendGHMessage(q, recipientId, responses) {
+    if(!emptyResults(recipientId,responses)) {
+        sendTextMessage(recipientId, "Try one of these answers from Github:");
+        var messageData = {};
+        var entries = [];
+        var buttons = [];
+        responses.forEach(function (response) {
+            var elementData = getElementData(response);
+            console.log(elementData);
+            var element = createElementTemplate("list", response.description ? response.description : response.name, response.language ? response.language : response.tools + " ", response.owner.avatar_url, response.html_url);
+            entries.push(element);
+            console.log("[sendTextMessage] %s", JSON.stringify(messageData));
+        });
+        messageData = getGenericTemplates(recipientId, false, entries, buttons);
+        messageData.message.attachment.payload.buttons = [];
+        messageData.message.attachment.payload.buttons = [
+            {
+                "title": "View More",
+                "type": "web_url",
+                "url": "https://github.com/search?q="+q
+            }];
+        callSendAPI(messageData);
+    }
 };
+
+function getElementData(response){
+    var title = response.description ? response.description : response.name;
+    var subtitle = response.language ? response.language : response.tools + " ";
+    var imgurl = response.owner.avatar_url;
+    var htmlurl = response.html_url;
+
+    return {
+        title:title,
+        sub:subtitle,
+        imgurl:imgurl,
+        htmlurl:htmlurl
+    }
+
+}
 
 // loadEntities();
 
