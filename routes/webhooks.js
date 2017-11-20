@@ -4,6 +4,7 @@ const db = require('../helpers/db');
 var format = require('pg-format');
 var router = express.Router();
 var se = require('../helpers/se');
+var gh = require('../helpers/github');
 var https = require('https');
 const so_img = "https://cdn.sstatic.net/Sites/stackoverflow/company/img/logos/so/so-logo.png";
 // App Dashboard > Dashboard > click the Show button in the App Secret field
@@ -19,7 +20,7 @@ const PAGE_ACCESS_TOKEN = 'EAAFTU9DCBUQBALI2paPx88gLDM14MbWAlrXVKQIEXncAcoadQs9X
 // Using an ngrok.io domain to serve images is no longer supported by the Messenger Platform.
 // Github Pages provides a simple image hosting solution (and it's free)
 const IMG_BASE_PATH = 'https://rodnolan.github.io/posterific-static-images/';
-
+const greeting = ["hey.", "wsup?", "Hello!", "Hi", "Nice to meet you!", "Hey yourself!"];
 // make sure that everything has been properly configured
 if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN)) {
     console.error("Missing config values");
@@ -192,23 +193,18 @@ function sendHelpOptionsAsQuickReplies(recipientId) {
             quick_replies: [
                 {
                     "content_type": "text",
-                    "title": "Rotation",
-                    "payload": "QR_ROTATION_1"
+                    "title": "Tool Descriptions",
+                    "payload": "QR_TOOL_1"
                 },
                 {
                     "content_type": "text",
-                    "title": "Photo",
-                    "payload": "QR_PHOTO_1"
+                    "title": "Troubleshoot Code",
+                    "payload": "QR_CODE_1"
                 },
                 {
                     "content_type": "text",
-                    "title": "Caption",
-                    "payload": "QR_CAPTION_1"
-                },
-                {
-                    "content_type": "text",
-                    "title": "Background",
-                    "payload": "QR_BACKGROUND_1"
+                    "title": "Github Examples",
+                    "payload": "QR_GITHUB_1"
                 }
             ]
         }
@@ -260,7 +256,7 @@ function respondToHelpRequest(senderID, payload) {
  * left and right to see it
  *
  */
-function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElements,sectionButtons) {
+function getGenericTemplates(recipientId, requestForHelpOnFeature, templateElements, sectionButtons) {
     console.log("[getGenericTemplates] handling help request for %s",
         requestForHelpOnFeature);
     // each button must be of type postback but title
@@ -279,7 +275,7 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElemen
     // This provides the user with maximum flexibility to navigate
 
     switch (requestForHelpOnFeature) {
-        case 'QR_ROTATION_1':
+        case 'QR_GITHUB_1':
             addSectionButton('Photo', 'QR_PHOTO_1');
             addSectionButton('Caption', 'QR_CAPTION_1');
             addSectionButton('Background', 'QR_BACKGROUND_1');
@@ -299,7 +295,7 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElemen
                 }
             );
             break;
-        case 'QR_PHOTO_1':
+        case 'QR_TOOL_1':
             addSectionButton('Rotation', 'QR_ROTATION_1');
             addSectionButton('Caption', 'QR_CAPTION_1');
             addSectionButton('Background', 'QR_BACKGROUND_1');
@@ -325,7 +321,7 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElemen
                 }
             );
             break;
-        case 'QR_CAPTION_1':
+        case 'QR_CODE_1':
             addSectionButton('Rotation', 'QR_ROTATION_1');
             addSectionButton('Photo', 'QR_PHOTO_1');
             addSectionButton('Background', 'QR_BACKGROUND_1');
@@ -395,6 +391,44 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElemen
                 }
             );
             break;
+        case 'QR_CAPTION_1':
+            addSectionButton('Rotation', 'QR_ROTATION_1');
+            addSectionButton('Photo', 'QR_PHOTO_1');
+            addSectionButton('Caption', 'QR_CAPTION_1');
+
+            templateElements.push(
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click to start",
+                    image_url: IMG_BASE_PATH + "10-background-picker-hover.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click current color",
+                    image_url: IMG_BASE_PATH + "11-background-picker-appears.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "select new color",
+                    image_url: IMG_BASE_PATH + "12-background-picker-selection.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "click ok",
+                    image_url: IMG_BASE_PATH + "13-background-picker-selection-made.png",
+                    buttons: sectionButtons
+                },
+                {
+                    title: "Background Color Picker",
+                    subtitle: "color is applied",
+                    image_url: IMG_BASE_PATH + "14-background-changed.png",
+                    buttons: sectionButtons
+                }
+            );
+            break;
     }
 
     if (templateElements.length < 2) {
@@ -420,33 +454,39 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature,templateElemen
     return messageData;
 }
 
-function createElementTemplate(type,title,subtitle,img,site){
+function createElementTemplate(type, title, subtitle, img, site) {
 
     var btns = {};
-        switch(type){
-            case 'list':
-                btns = { type: 'web_url',
-                    url: site,
-                    title: "Open",
-                    messenger_extensions: 'TRUE',
-                         webview_height_ratio: "COMPACT"
-                };
-            default:
-               btns = {type: 'web_url',
+    switch (type) {
+        case 'list':
+            btns = {
+                type: 'web_url',
                 url: site,
-                title: "Open"};
-        }
+                title: "Open",
+                messenger_extensions: 'TRUE',
+                webview_height_ratio: "COMPACT"
+            };
+        default:
+            btns = {
+                type: 'web_url',
+                url: site,
+                title: "Open"
+            };
+    }
 
     element = {
         title: title,
-        subtitle: subtitle ,
-        default_action: {type: 'web_url',
-        url: site, messenger_extensions: 'FALSE',
-            webview_height_ratio: "FULL"}
+        subtitle: subtitle,
+        default_action: {
+            type: 'web_url',
+            url: site, messenger_extensions: 'FALSE',
+            webview_height_ratio: "FULL"
+        }
     };
 
     return element;
 }
+
 /*
  * This response uses image attachments to illustrate each step of each feature.
  * This is less flexible because you are limited in the number of options you can
@@ -740,59 +780,59 @@ var parseTools = function (tools) {
 };
 
 
-function loadEntities(){
-        db.connect(function (err, client, done) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                myClient = client;
-                var searchQuery = format('SELECT distinct(title) from records ORDER BY title desc;');
-                console.log("issuing query: " + searchQuery);
-                myClient.query(searchQuery, function (err, result) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log(result.rows.length);
-                        results = result.rows;
-                        var values = [];
-                        results.forEach(function (row) {
-                            var toolname = row.title;
-                            values.push(
-                                {
-                                    value: toolname,
-                                    expressions: [toolname, toolname.toLowerCase()]
-                                });
-                        });
-                        var entries = {doc: "Tools", values: values};
-                        console.log(JSON.stringify(entries));
-                        var postentreq = https.request({
-                            host: 'api.wit.ai',
-                            path: '/entities/tool?v=201703',
-                            headers: {
-                                "Authorization": "Bearer EMHECMMIQ3OL537ROQTJNMUCEAD4EC5J",
-                                "Content-Type": "application/json"
-                            },
-                            method: 'PUT'
-                        }, function (res) {
-                            console.log(res.statusCode + " " + res.statusMessage);
+function loadEntities() {
+    db.connect(function (err, client, done) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            myClient = client;
+            var searchQuery = format('SELECT distinct(title) from records ORDER BY title desc;');
+            console.log("issuing query: " + searchQuery);
+            myClient.query(searchQuery, function (err, result) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(result.rows.length);
+                    results = result.rows;
+                    var values = [];
+                    results.forEach(function (row) {
+                        var toolname = row.title;
+                        values.push(
+                            {
+                                value: toolname,
+                                expressions: [toolname, toolname.toLowerCase()]
+                            });
+                    });
+                    var entries = {doc: "Tools", values: values};
+                    console.log(JSON.stringify(entries));
+                    var postentreq = https.request({
+                        host: 'api.wit.ai',
+                        path: '/entities/tool?v=201703',
+                        headers: {
+                            "Authorization": "Bearer EMHECMMIQ3OL537ROQTJNMUCEAD4EC5J",
+                            "Content-Type": "application/json"
+                        },
+                        method: 'PUT'
+                    }, function (res) {
+                        console.log(res.statusCode + " " + res.statusMessage);
 
-                        });
-                        postentreq.write(JSON.stringify(entries));
-                        postentreq.on('error', function (e) {
-                            // General error, i.e.
-                            //  - ECONNRESET - server closed the socket unexpectedly
-                            //  - ECONNREFUSED - server did not listen
-                            //  - HPE_INVALID_VERSION
-                            //  - HPE_INVALID_STATUS
-                            //  - ... (other HPE_* codes) - server returned garbage
-                            console.log(e);
-                        });
-                        postentreq.end();
-                    }
-                });
-            }
-        });
+                    });
+                    postentreq.write(JSON.stringify(entries));
+                    postentreq.on('error', function (e) {
+                        // General error, i.e.
+                        //  - ECONNRESET - server closed the socket unexpectedly
+                        //  - ECONNREFUSED - server did not listen
+                        //  - HPE_INVALID_VERSION
+                        //  - HPE_INVALID_STATUS
+                        //  - ... (other HPE_* codes) - server returned garbage
+                        console.log(e);
+                    });
+                    postentreq.end();
+                }
+            });
+        }
+    });
 }
 
 function processNLPMessage(senderId, event) {
@@ -807,7 +847,11 @@ function processNLPMessage(senderId, event) {
          */
         console.log(nlp);
 
-        if (nlp.hasOwnProperty("intent")) {
+        if (nlp.hasOwnProperty('greetings')) {
+            var randIndex = Math.ceil(Math.random() * greeting.length-1);
+            sendTextMessage(senderId, greeting[randIndex]);
+        }
+        else if (nlp.hasOwnProperty("intent")) {
             //we have an intent for this message! yay.
             var intents = nlp.intent;
             var userintent = "";
@@ -825,10 +869,30 @@ function processNLPMessage(senderId, event) {
             }
 
             switch (userintent.value.toLowerCase()) {
-                case 'stack': // handle 'description' case
+                case 'examples': // handle 'description' case
+                    var q = event.message.text;
+                    if (nlp.hasOwnProperty('wikipedia_search_query')) {
+                        q = nlp.wikipedia_search_query[0].value;
+                    }
+                    else if (nlp.hasOwnProperty('tool')) {
+                        q = "";
+                        for (var i =0;i<nlp.tool.length-1;i++) {
+                            q += nlp.tool[i].value + " ";
+                        }
+                    }
+
+                    console.log(q);
+                    searchGithub(q, function (err, result) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            // console.log(result);
+                            sendGHMessage(senderId, result);
+                        }
+                    });
                     break;
                 case 'description': // handle 'description' case
-                    if(nlp.hasOwnProperty('tool')) {
+                    if (nlp.hasOwnProperty('tool')) {
                         getDescriptionOfTool(nlp.tool, function (err, result) {
                             if (err) {
                                 console.log(err);
@@ -838,13 +902,13 @@ function processNLPMessage(senderId, event) {
                             }
                         });
                     }
-                    else{
+                    else {
                         var q = event.message.text;
-                        if(nlp.hasOwnProperty('wikipedia_search_query')){
+                        if (nlp.hasOwnProperty('wikipedia_search_query')) {
                             q = nlp.wikipedia_search_query[0].value;
                         }
 
-                        searchStackExchange(q,function(err,result){
+                        searchStackExchange(q, function (err, result) {
                             if (err) {
                                 console.log(err);
                             } else {
@@ -852,25 +916,30 @@ function processNLPMessage(senderId, event) {
                                 sendSEMessage(senderId, result);
                             }
                         });
-                        }
+                    }
                     break;
                 case 'how-to': // handle 'description' case
                     var q = event.message.text;
-                       if(nlp.hasOwnProperty('wikipedia_search_query')){
-                           q = nlp.wikipedia_search_query[0].value;
-                       }
-
-                        searchStackExchange(q,function(err,result){
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                console.log(result);
-                                sendSEMessage(senderId, result);
-                            }
-                        });
+                    if (nlp.hasOwnProperty('wikipedia_search_query')) {
+                        q = nlp.wikipedia_search_query[0].value;
+                    }
+                    else if (nlp.hasOwnProperty('tool')) {
+                        q = "";
+                        for (var i =0;i<nlp.tool.length-1;i++) {
+                            q += nlp.tool[i].value + " ";
+                        }
+                    }
+                    searchStackExchange(q, function (err, result) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            // console.log(result);
+                            sendSEMessage(senderId, result);
+                        }
+                    });
                     break;
-                case 'users': // handle 'description' case
-                    break;
+                case 'menu':
+                case 'help':
                 default:
                     // otherwise, just echo it back to the sender
                     sendTextMessage(senderId, "I'm having a hard time understanding. Can you try again?");
@@ -882,27 +951,46 @@ function processNLPMessage(senderId, event) {
     }
 }
 
-function searchStackExchange(query,callback){
+function searchGithub(query, callback) {
 
     //try to search stack exchange for answers.
 
-    se.search(query,function(err,results){
-        if(err){console.log(err);}
-        else{
+    gh.search(query, function (err, results) {
+        if (err) {
+            console.log(err);
+        }
+        else {
             //process results
-            callback(err,results);
+            callback(err, results);
         }
     });
 
 }
+
+function searchStackExchange(query, callback) {
+
+    //try to search stack exchange for answers.
+
+    se.search(query, function (err, results) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            //process results
+            callback(err, results);
+        }
+    });
+
+}
+
 /*
  * Send a text message using the Send API.
  *
  */
 function sendResponseMessage(recipientId, responses) {
     responses.forEach(function (response) {
-        if (response.description.length >= 640){
-            response.description = response.description.substring(0,620) + "...";
+        if (response.description.length >= 640) {
+            response.description = response.description.substring(0, 620) + "...";
         }
         var body = response.name + " : " + response.description;
         var messageData = {
@@ -919,16 +1007,17 @@ function sendResponseMessage(recipientId, responses) {
 
 }
 
-function sendSEMessage(recipientId,responses){
+function sendSEMessage(recipientId, responses) {
+    sendTextMessage(recipientId, "Try one of these answers from Stack Exchange:");
     var messageData = {};
     var entries = [];
     var buttons = [];
     responses.forEach(function (response) {
-        var element = createElementTemplate("list",response.title,response.tags.join(''),so_img,response.link);
+        var element = createElementTemplate("list", response.title, response.tags.join(''), so_img, response.link);
         entries.push(element);
         console.log("[sendTextMessage] %s", JSON.stringify(messageData));
     });
-    messageData = getGenericTemplates(recipientId,false,entries,buttons);
+    messageData = getGenericTemplates(recipientId, false, entries, buttons);
     messageData.message.attachment.payload.buttons = [];
     messageData.message.attachment.payload.buttons = [
         {
@@ -938,7 +1027,30 @@ function sendSEMessage(recipientId,responses){
         }];
     callSendAPI(messageData);
 };
+
+function sendGHMessage(recipientId, responses) {
+    sendTextMessage(recipientId, "Try one of these answers from Github:");
+    var messageData = {};
+    var entries = [];
+    var buttons = [];
+    responses.forEach(function (response) {
+        var element = createElementTemplate("list", response.description ? response.description : response.name, response.language ? response.language : response.tools, response.owner.avatar_url, response.html_url);
+        entries.push(element);
+        console.log("[sendTextMessage] %s", JSON.stringify(messageData));
+    });
+    messageData = getGenericTemplates(recipientId, false, entries, buttons);
+    messageData.message.attachment.payload.buttons = [];
+    messageData.message.attachment.payload.buttons = [
+        {
+            "title": "View More",
+            "type": "postback",
+            "payload": "payload"
+        }];
+    callSendAPI(messageData);
+};
+
 // loadEntities();
+
 module.exports = router;
 
 
