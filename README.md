@@ -1,5 +1,6 @@
 ## Inspiration
-Kodi is for developers who are tired of the bloat the search engines return when they are looking for quick answers. Built using custom NLP logic, Kodi can help you find answers to your programming problems through simple texts!
+There's not always someone around to ask your coding questions to, so Agent Kodi was built as a 24/7 quick response buddy to help you find answers to any of your coding questions. Agent Kodi is built using custom NLP logic, so you can interact with her through simple texts!
+
 ## What it does
 Kodi can answer questions like:
 * What is Python?
@@ -52,5 +53,13 @@ This entire project! This was my first bot of any kind, and on top of that I was
 
 ## What I learned
 I learned how to build a node application from start to finish, generate and integrate certs to make it a secure server.
+How to install create and customize a postgres database on a server.
+Using DigitalOcean for deployments/hosting.
+
 
 ## What's next for Kodi
+Due to the limited time constraints of the hackathon and only having a single developer resource, Agent Kodi is at the very preliminary stages of development. In the future the following features will be added:
+* Increased terminology recognition & understanding
+* Ability to learn new terms from users
+* Semantic network of terms to find things related to one another through heirachy.
+* Pagination of results
