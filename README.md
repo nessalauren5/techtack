@@ -2,10 +2,11 @@
 Kodi is for developers who are tired of the bloat the search engines return when they are looking for quick answers. Built using custom NLP logic, Kodi can help you find answers to your programming problems through simple texts!
 ## What it does
 Kodi can answer questions like:
-       * What is java?
+       * What is Python?
+       * Tell me about Node
        * How do i install python on my mac?
        * How do I fix a ClassNotFound exception?
-       * Define 
+       * Define a loop
         * Find code using []
         * I'm looking for examples of []
 ## How I built it
