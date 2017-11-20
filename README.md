@@ -48,6 +48,12 @@ The app uses 3 wit.ai entities:
 ## Challenges I ran into
 So many! Here are a list of brick walls I hit along the way:
 
+I'm familiar with javascript but in a much lighter context than this project required. Node gave me quite a few headaches, especially when it came to [Error: Can't set headers after they are sent.](github.com)
+
+I've never actually run an https server on my own so creating the keys correctly, signed by CA was a new experience.
+
+
+
 ## Accomplishments that I'm proud of
 This entire project! This was my first bot of any kind, and on top of that I was utilizing several new frameworks and APIs - node.js, stackoverflow, facebook messenger. 
 
