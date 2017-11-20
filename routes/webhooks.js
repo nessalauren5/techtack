@@ -836,7 +836,6 @@ function processNLPMessage(senderId, event) {
                                 console.log(result);
                                 sendResponseMessage(senderId, result);
                             }
-                            break;
                         });
                     }
                     else{
@@ -854,7 +853,6 @@ function processNLPMessage(senderId, event) {
                             }
                         });
                         }
-
                     break;
                 case 'how-to': // handle 'description' case
                     var q = event.message.text;
