@@ -151,7 +151,7 @@ function processMessageFromPage(event) {
     var timeOfMessage = event.timestamp;
     var message = event.message;
 
-    // console.log("[processMessageFromPage] user (%d) page (%d) timestamp (%d) and message (%s)", senderID, pageID, timeOfMessage, JSON.stringify(message));
+    console.log("[processMessageFromPage] user (%d) page (%d) timestamp (%d) and message (%s)", senderID, pageID, timeOfMessage, JSON.stringify(message));
 
     if (message.quick_reply) {
         console.log("[processMessageFromPage] quick_reply.payload (%s)",
@@ -621,7 +621,7 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature, templateEleme
                 type: "template",
                 payload: {
                     template_type: "list",
-                    top_element_style: "compact",
+                    top_element_style: "large",
                     elements: templateElements
                 }
             }
@@ -686,7 +686,7 @@ function createElementTemplate(type, title, subtitle, img, site) {
                 url: site,
                 title: "Open",
                 messenger_extensions: 'TRUE',
-                webview_height_ratio: "COMPACT"
+                webview_height_ratio: "TALL"
             };
         default:
             btns = {
@@ -702,7 +702,7 @@ function createElementTemplate(type, title, subtitle, img, site) {
         default_action: {
             type: 'web_url',
             url: site, messenger_extensions: 'FALSE',
-            webview_height_ratio: "FULL"
+            webview_height_ratio: "TALL"
         }
     };
 
@@ -1143,12 +1143,12 @@ function processNLPMessage(senderId, event) {
                                     if (err) {
                                         console.log(err);
                                     } else {
-                                        console.log(result);
+                                        //console.log(result);
                                         sendSEMessage(q,senderId, result);
                                     }
                                 });
                             } else {
-                                console.log(result);
+                                //console.log(result);
                                 sendResponseMessage(senderId, result);
                             }
                         });
@@ -1257,6 +1257,9 @@ function sendSEMessage(q, recipientId, responses) {
         sendTextMessage(recipientId, "Try one of these answers from Stack Exchange:");
         var messageData = {};
         var entries = [];
+        var firstElement = createElementTemplate('list',q,"","","https://stackoverflow.com/search?q="+q);
+        firstElement.image_url = "https://nessalauren.com/images/techtakbg.png";//background image
+        entries.push(firstElement);
         var buttons = [];
         responses.forEach(function (response) {
             var element = createElementTemplate("list", response.title, response.tags.join(''), so_img, response.link);
@@ -1271,6 +1274,7 @@ function sendSEMessage(q, recipientId, responses) {
                 "type": "web_url",
                 "url": "https://stackoverflow.com/search?q="+q
             }];
+        console.log(messageData.attachment.payload);
         callSendAPI(messageData);
     }
 };
@@ -1280,6 +1284,9 @@ function sendGHMessage(q, recipientId, responses) {
         sendTextMessage(recipientId, "Try one of these answers from Github:");
         var messageData = {};
         var entries = [];
+        var firstElement = createElementTemplate('list',q,"","","https://github.com/search?q="+q);
+        firstElement.image_url = "https://nessalauren.com/images/techtakbg.png";//background image
+        entries.push(firstElement);
         var buttons = [];
         responses.forEach(function (response) {
             var elementData = getElementData(response);

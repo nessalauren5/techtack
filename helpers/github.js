@@ -4,7 +4,7 @@ var github = new githubAPI();
 var params = {
     q : "helloworld",
     page : 1,
-    per_page : 4
+    per_page : 3
 };
 
 function searchGH(query,callback){

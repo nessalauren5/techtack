@@ -6,7 +6,7 @@ var context = new stackexchange(options);
 
 var filter = {
     key: 'Qm39ZmtPEs5vr2Noz48AEA((',
-    pagesize: 4,
+    pagesize: 3,
     sort: 'votes',
     order: 'asc'
 };
