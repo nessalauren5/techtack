@@ -61,6 +61,7 @@ This entire project! This was my first bot of any kind, and on top of that I was
 I learned how to build a node application from start to finish, generate and integrate certs to make it a secure server.
 How to install create and customize a postgres database on a server.
 Using DigitalOcean for deployments/hosting.
+How to use ngrok for redirecting to localhost on http/https
 
 
 ## What's next for Kodi
