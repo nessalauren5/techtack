@@ -5,7 +5,9 @@ var format = require('pg-format');
 var router = express.Router();
 var se = require('../helpers/se');
 var gh = require('../helpers/github');
+var wiki = require('../helpers/wiki');
 var https = require('https');
+var striptags = require('striptags');
 var greeting = ["hey.", "wsup?", "Hello!", "Hi", "Nice to meet you!", "Hey yourself!"];
 var quick_yn = [
     {
@@ -1090,13 +1092,6 @@ function loadEntities() {
 function processNLPMessage(senderId, event) {
     if (event.message.hasOwnProperty('nlp') && event.message.nlp.hasOwnProperty("entities")) {
         var nlp = event.message.nlp.entities;
-        /**
-         * Options:
-         * nlp.intent =
-         * nlp.search_query = [text not matching anything]
-         * nlp.action = [build,install]
-         * nlp.deliverable = [native app, web app, server, website]
-         */
         console.log(nlp);
 
         if (nlp && nlp.hasOwnProperty('greetings')){
@@ -1145,22 +1140,7 @@ function processNLPMessage(senderId, event) {
                     });
                     break;
                 case 'description': // handle 'description' case
-                    if (nlp.hasOwnProperty('tool')) {
-                        getDescriptionOfTool(nlp.tool, function (err, result) {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                if(result==null || result.length == 0){
 
-                                        sendTextMessage(senderId, "Hmm. I don't have that in my vocabulary. Let me try asking around..");
-
-                                }else {
-                                    sendResponseMessage(senderId, result);
-                                }
-                            }
-                        });
-                    }
-                    else {
                         var q = event.message.text;
                         if (nlp.hasOwnProperty('wikipedia_search_query')) {
                             q = nlp.wikipedia_search_query[0].value;
@@ -1169,14 +1149,16 @@ function processNLPMessage(senderId, event) {
                         getDescriptionOfTool(nlp.wikipedia_search_query, function (err, result) {
                             if (err || result == null || result.length==0) {
 
-                                sendTextMessage(senderId, "Hmm. I don't have that in my vocabulary. Let me try asking around..");
+                                sendTextMessage(senderId, "Hmm. I don't have that in my vocabulary. Let's try wikipedia..");
 
-                                searchStackExchange(q, function (err, result) {
+                                searchWikipedia(q, function (err, result) {
                                     if (err) {
                                         console.log(err);
                                     } else {
-                                        //console.log(result);
-                                        sendSEMessage(q,senderId, result);
+                                        console.log(result);
+                                        if(result.hasOwnProperty('query') && result.query.hasOwnProperty('search')) {
+                                            sendWikiMessage(q, senderId, result.query.search);
+                                        }
                                     }
                                 });
                             } else {
@@ -1184,8 +1166,6 @@ function processNLPMessage(senderId, event) {
                                 sendResponseMessage(senderId, result);
                             }
                         });
-
-                    }
                     break;
                 case 'how-to': // handle 'description' case
                     var q = event.message.text;
@@ -1219,7 +1199,7 @@ function processNLPMessage(senderId, event) {
         }
 
     } else {
-        sendTextMessage(senderID, messageText);
+        sendTextMessage(senderId, "I'm having a hard time understanding. Can you try again?");
     }
 }
 
@@ -1244,6 +1224,21 @@ function searchStackExchange(query, callback) {
     //try to search stack exchange for answers.
 
     se.search(query, function (err, results) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            //process results
+            callback(err, results);
+        }
+    });
+
+}
+function searchWikipedia(query, callback) {
+
+    //try to search stack exchange for answers.
+
+    wiki.search(query, function (err, results) {
         if (err) {
             console.log(err);
         }
@@ -1338,6 +1333,17 @@ function sendGHMessage(q, recipientId, responses) {
                 "url": "https://github.com/search?q="+q
             }];
         callSendAPI(messageData);
+    }
+};
+function sendWikiMessage(q, recipientId, responses) {
+    if(!emptyResults(recipientId,responses)) {
+        sendTextMessage(recipientId, "Wikipedia says:");
+        response = responses[0];
+        var messageText = striptags(response.snippet);
+        sendTextMessage(recipientId,"Wikipedia says: \n" + messageText);
+    }
+    else{
+    sendTextMessage(recipientId,"Bummer, I couldn't find anything. I'm learning as time goes on though, so maybe try again later?");
     }
 };
 
