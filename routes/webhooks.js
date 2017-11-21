@@ -1237,7 +1237,7 @@ function searchStackExchange(query, callback) {
 function searchWikipedia(query, callback) {
 
     //try to search stack exchange for answers.
-
+    console.log('searching wiki for: ' + query);
     wiki.search(query, function (err, results) {
         if (err) {
             console.log(err);
@@ -1337,7 +1337,6 @@ function sendGHMessage(q, recipientId, responses) {
 };
 function sendWikiMessage(q, recipientId, responses) {
     if(!emptyResults(recipientId,responses)) {
-        sendTextMessage(recipientId, "Wikipedia says:");
         response = responses[0];
         var messageText = striptags(response.snippet);
         sendTextMessage(recipientId,"Wikipedia says: \n" + messageText);

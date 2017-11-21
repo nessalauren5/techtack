@@ -1,7 +1,7 @@
 const request = require("request");
 
 function searchWiki(query,callback){
-    var q = encodeURIComponent(q);
+    var q = encodeURIComponent(query);
     var url =
         "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" + q + "&format=json";
 
