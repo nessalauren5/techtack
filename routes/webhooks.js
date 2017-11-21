@@ -6,6 +6,17 @@ var router = express.Router();
 var se = require('../helpers/se');
 var gh = require('../helpers/github');
 var https = require('https');
+var greeting = ["hey.", "wsup?", "Hello!", "Hi", "Nice to meet you!", "Hey yourself!"];
+var quick_yn = [
+    {
+        "content_type":"text",
+        "title":"Yes",
+        "payload":"help"
+    },{"content_type":"text",
+        "title":"No",
+        "payload":"no-help"}
+];
+
 const so_img = "https://cdn.sstatic.net/Sites/stackoverflow/company/img/logos/so/so-logo.png";
 // App Dashboard > Dashboard > click the Show button in the App Secret field
 const APP_SECRET = '6b8ac07a88dc1f07d13955f3610640ec';
@@ -20,7 +31,7 @@ const PAGE_ACCESS_TOKEN = 'EAAFTU9DCBUQBALI2paPx88gLDM14MbWAlrXVKQIEXncAcoadQs9X
 // Using an ngrok.io domain to serve images is no longer supported by the Messenger Platform.
 // Github Pages provides a simple image hosting solution (and it's free)
 const IMG_BASE_PATH = 'https://rodnolan.github.io/posterific-static-images/';
-const greeting = ["hey.", "wsup?", "Hello!", "Hi", "Nice to meet you!", "Hey yourself!"];
+
 // make sure that everything has been properly configured
 if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN)) {
     console.error("Missing config values");
@@ -178,6 +189,19 @@ function processMessageFromPage(event) {
     }
 }
 
+function sendMsgWithQuickReplies(recipientId, messageText, quick_replies){
+    console.log("[sendHelpOptionsAsQuickReplies] Sending help options menu");
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: messageText,
+            quick_replies: quick_replies
+        }
+    };
+    callSendAPI(messageData);
+}
 /*
  * Send a message with the four Quick Reply buttons
  *
@@ -621,7 +645,7 @@ function getGenericTemplates(recipientId, requestForHelpOnFeature, templateEleme
                 type: "template",
                 payload: {
                     template_type: "list",
-                    top_element_style: "large",
+                    top_element_style: "LARGE",
                     elements: templateElements
                 }
             }
@@ -657,6 +681,12 @@ function respondToHelpRequest(senderID, payload) {
                 sendTextMessage(senderID,"I define terms and describe tools." +
                     "Say something like:\n\n* What is Inheritance?" +
                     "\n* Tell me about react");
+                break;
+            case 'help':
+                sendHelpOptionsAsQuickReplies(senderID);
+                break;
+            case 'no-help':
+                sendTextMessage(senderID,"Okay cool, let me know if you need anything.");
                 break;
             default:
                 // respond to the sender's help request by presenting a carousel-style
@@ -699,6 +729,7 @@ function createElementTemplate(type, title, subtitle, img, site) {
     element = {
         title: title,
         subtitle: subtitle,
+        image_url:"",
         default_action: {
             type: 'web_url',
             url: site, messenger_extensions: 'FALSE',
@@ -1068,9 +1099,10 @@ function processNLPMessage(senderId, event) {
          */
         console.log(nlp);
 
-        if (nlp.hasOwnProperty('greetings')) {
+        if (nlp && nlp.hasOwnProperty('greetings')){
             var randIndex = Math.ceil(Math.random() * greeting.length-1);
-            sendTextMessage(senderId, greeting[randIndex]);
+            var msg = greeting[randIndex];
+            sendMsgWithQuickReplies(senderId,msg + " Do you need help getting started?",quick_yn);
         }
         else if (nlp.hasOwnProperty("intent")) {
             //we have an intent for this message! yay.
@@ -1178,6 +1210,8 @@ function processNLPMessage(senderId, event) {
                     break;
                 case 'menu':
                 case 'help':
+                    sendHelpOptionsAsQuickReplies(senderId);
+                    break;
                 default:
                     // otherwise, just echo it back to the sender
                     sendTextMessage(senderId, "I'm having a hard time understanding. Can you try again?");
@@ -1257,7 +1291,7 @@ function sendSEMessage(q, recipientId, responses) {
         sendTextMessage(recipientId, "Try one of these answers from Stack Exchange:");
         var messageData = {};
         var entries = [];
-        var firstElement = createElementTemplate('list',q,"","","https://stackoverflow.com/search?q="+q);
+        var firstElement = createElementTemplate('list',"Search results for: '"+q+"'","","","https://stackoverflow.com/search?q="+q);
         firstElement.image_url = "https://nessalauren.com/images/techtakbg.png";//background image
         entries.push(firstElement);
         var buttons = [];
@@ -1274,7 +1308,7 @@ function sendSEMessage(q, recipientId, responses) {
                 "type": "web_url",
                 "url": "https://stackoverflow.com/search?q="+q
             }];
-        console.log(messageData.attachment.payload);
+        console.log(messageData.message.attachment.payload);
         callSendAPI(messageData);
     }
 };
@@ -1284,7 +1318,7 @@ function sendGHMessage(q, recipientId, responses) {
         sendTextMessage(recipientId, "Try one of these answers from Github:");
         var messageData = {};
         var entries = [];
-        var firstElement = createElementTemplate('list',q,"","","https://github.com/search?q="+q);
+        var firstElement = createElementTemplate('list',"Search results for: '"+q+"'","","","https://github.com/search?q="+q);
         firstElement.image_url = "https://nessalauren.com/images/techtakbg.png";//background image
         entries.push(firstElement);
         var buttons = [];
