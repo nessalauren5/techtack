@@ -1339,7 +1339,7 @@ function sendWikiMessage(q, recipientId, responses) {
     if(!emptyResults(recipientId,responses)) {
         var response = responses[0];
         var messageText = striptags(response.snippet);
-        sendTextMessage(recipientId,"Wikipedia says: \n" + messageText);
+        sendTextMessage(recipientId,"Wikipedia says: \n" + messageText + "...");
     }
     else{
     sendTextMessage(recipientId,"Bummer, I couldn't find anything. I'm learning as time goes on though, so maybe try again later?");
