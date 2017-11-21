@@ -66,6 +66,7 @@ Using DigitalOcean for deployments/hosting.
 ## What's next for Kodi
 Due to the limited time constraints of the hackathon and only having a single developer resource, Agent Kodi is at the very preliminary stages of development. In the future the following features will be added:
 * Increased terminology recognition & understanding
+* Enrich results with links to definitions, similar terms
 * Ability to learn new terms from users
 * Semantic network of terms to find things related to one another through heirachy.
 * Pagination of results
