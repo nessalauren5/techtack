@@ -1337,7 +1337,7 @@ function sendGHMessage(q, recipientId, responses) {
 };
 function sendWikiMessage(q, recipientId, responses) {
     if(!emptyResults(recipientId,responses)) {
-        response = responses[0];
+        var response = responses[0];
         var messageText = striptags(response.snippet);
         sendTextMessage(recipientId,"Wikipedia says: \n" + messageText);
     }
