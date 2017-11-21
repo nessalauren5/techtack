@@ -61,11 +61,13 @@ This entire project! This was my first bot of any kind, and on top of that I was
 I learned how to build a node application from start to finish, generate and integrate certs to make it a secure server.
 How to install create and customize a postgres database on a server.
 Using DigitalOcean for deployments/hosting.
+How to use ngrok for redirecting to localhost on http/https
 
 
 ## What's next for Kodi
 Due to the limited time constraints of the hackathon and only having a single developer resource, Agent Kodi is at the very preliminary stages of development. In the future the following features will be added:
 * Increased terminology recognition & understanding
+* Enrich results with links to definitions, similar terms
 * Ability to learn new terms from users
 * Semantic network of terms to find things related to one another through heirachy.
 * Pagination of results
