@@ -17,8 +17,8 @@ function searchSE(query,callback){
     context.search.advanced(filter, function(err, results){
         if (err) throw err;
 
-        console.log(results);
-        console.log(results.has_more);
+        //console.log(results);
+        //console.log(results.has_more);
         callback(err,results.items);
     });
 

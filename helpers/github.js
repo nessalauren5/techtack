@@ -13,7 +13,7 @@ function searchGH(query,callback){
 
     github.search.repos(params,function(err,results){
         console.log(err);
-        console.log(results.data.items);
+       // console.log(results.data.items);
         callback(err,results.data.items);
     });
 
